@@ -1,0 +1,6 @@
+.env
+client.properties
+__pycache__/
+*.pyc
+*.log
+logs/

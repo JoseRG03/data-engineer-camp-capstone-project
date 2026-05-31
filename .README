@@ -1,0 +1,7 @@
+To run event-producer:
+
+docker run --rm --env-file .env -v "${PWD}/client.properties:/app/client.properties:ro" -v "${PWD}/logs:/app/logs" event-producer
+
+Requirements:
+
+- client.properties file
