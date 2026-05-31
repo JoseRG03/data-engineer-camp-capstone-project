@@ -1,0 +1,6 @@
+# Confluent Cloud connection — copy to client.properties and fill in your cluster credentials
+bootstrap.servers=<BOOTSTRAP_SERVERS>
+security.protocol=SASL_SSL
+sasl.mechanisms=PLAIN
+sasl.username=<API_KEY>
+sasl.password=<API_SECRET>
