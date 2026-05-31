@@ -1,17 +1,29 @@
 import json
 import os
+import sys
 import time
 from datetime import datetime, timezone
 
 import requests
 from confluent_kafka import Producer
 from dotenv import load_dotenv
+from loguru import logger
 
 load_dotenv()
 
 STATION_STATUS_URL = os.getenv("STATION_STATUS_URL")
 POLL_INTERVAL_SECONDS = int(os.getenv("POLL_INTERVAL_SECONDS", "30"))
 KAFKA_TOPIC = os.getenv("KAFKA_TOPIC")
+
+logger.remove()
+logger.add(sys.stdout, level="INFO", format="{time:YYYY-MM-DD HH:mm:ss} | {level:<8} | {message}")
+logger.add(
+    "logs/producer.log",
+    level="INFO",
+    rotation="10 MB",
+    retention="7 days",
+    format="{time:YYYY-MM-DD HH:mm:ss} | {level:<8} | {message}",
+)
 
 # Fields that constitute a meaningful status change
 TRACKED_FIELDS = {
@@ -40,7 +52,7 @@ def read_ccloud_config(config_file: str) -> dict:
 
 def delivery_report(err, msg):
     if err:
-        print(f"Delivery failed for station {msg.key()}: {err}")
+        logger.error("Delivery failed for station {}: {}", msg.key(), err)
 
 
 def fetch_station_statuses() -> list[dict]:
@@ -78,7 +90,7 @@ def publish_stations(producer: Producer, stations: list[dict], ingested_at: str)
 
 def main():
     producer = Producer(read_ccloud_config("client.properties"))
-    print(f"Polling {STATION_STATUS_URL} every {POLL_INTERVAL_SECONDS}s → topic '{KAFKA_TOPIC}'")
+    logger.info("Polling {} every {}s → topic '{}'", STATION_STATUS_URL, POLL_INTERVAL_SECONDS, KAFKA_TOPIC)
 
     previous_states: dict[str, tuple] = {}
 
@@ -91,17 +103,17 @@ def main():
 
             if changed:
                 publish_stations(producer, changed, ingested_at)
-                print(f"[{ingested_at}] Published {len(changed)}/{len(stations)} changed stations")
+                logger.info("Published {}/{} changed stations", len(changed), len(stations))
             else:
-                print(f"[{ingested_at}] No changes across {len(stations)} stations")
+                logger.info("No changes across {} stations", len(stations))
 
             # Update state cache after publishing
             previous_states = {s["station_id"]: station_state(s) for s in stations}
 
         except requests.RequestException as exc:
-            print(f"HTTP error fetching station status: {exc}")
+            logger.error("HTTP error fetching station status: {}", exc)
         except Exception as exc:
-            print(f"Unexpected error: {exc}")
+            logger.exception("Unexpected error: {}", exc)
 
         time.sleep(POLL_INTERVAL_SECONDS)
 
