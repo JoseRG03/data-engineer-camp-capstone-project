@@ -4,8 +4,8 @@ on: # trigger
   pull_request:
     branches: [main] # on pull request that targets the main branch, trigger this workflow.
     paths:
-      - "src/**/*.py" # Triggers on changes in any Python file within the 'src' directory
-
+      - "streams/event-producer/**/*.py" # Triggers on changes in any Python file within the 'event-producer' directory
+      - "batch/orchestrate/**/*.py" # Triggers on changes in any Python file within the 'orchestrate' directory
 jobs:
   python_linter:
     # compute/infrastructure
