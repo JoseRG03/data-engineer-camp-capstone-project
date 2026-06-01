@@ -39,4 +39,4 @@ jobs:
 
       - name: Run python linting checks
         run: |
-          ruff check streams/event-producer batch/orchestrate
+          ruff check streams/event-producer batch/
