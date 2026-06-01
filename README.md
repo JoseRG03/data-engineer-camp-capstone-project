@@ -99,7 +99,6 @@ This pipeline answers questions like:
 2. Only stations whose status has **changed** (bikes available, docking capacity, operational flags) are published to the Kafka topic — reducing noise and downstream load.
 3. A separate `station_data.py` seeds the `station_information` topic once with static station metadata (name, lat/lon, capacity).
 4. Flink SQL joins the two streams and materialises a `station_current_status` table with enriched, typed records.
-5. A tumbling-window aggregation rolls up per-station availability into 5-minute summaries.
 
 ### Running the producer locally
 
