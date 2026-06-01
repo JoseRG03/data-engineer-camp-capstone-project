@@ -1,0 +1,42 @@
+name: ci
+on: # trigger
+  workflow_dispatch: {} # manual trigger
+  pull_request:
+    branches: [main] # on pull request that targets the main branch, trigger this workflow.
+    paths:
+      - "src/**/*.py" # Triggers on changes in any Python file within the 'src' directory
+
+jobs:
+  python_linter:
+    # compute/infrastructure
+    runs-on: ubuntu-latest
+    container:
+      image: python:3.11
+
+    # steps
+    steps:
+      # git checkout HEAD
+      - name: Checkout code repository in agent
+        uses: actions/checkout@v4
+        with:
+          set-safe-directory: true
+
+      # https://github.com/actions/runner/issues/2033#issuecomment-1204205989
+      - name: Set ownership
+        run: |
+          # this is to fix GIT not liking owner of the checkout dir
+          chown -R $(id -u):$(id -g) $PWD
+
+      - name: Set up python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ./transform/dbt/requirements.txt
+
+      - name: Run python linting checks
+        run: |
+          bash ./bin/python_linter.sh
