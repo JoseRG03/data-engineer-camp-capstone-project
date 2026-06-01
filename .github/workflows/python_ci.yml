@@ -39,4 +39,4 @@ jobs:
 
       - name: Run python linting checks
         run: |
-          bash ./bin/python_linter.sh
+          ruff check streams/event-producer batch/orchestrate
