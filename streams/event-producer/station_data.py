@@ -10,8 +10,9 @@ import json
 import os
 import sys
 import time
+
 import requests
-from confluent_kafka import Producer, KafkaException
+from confluent_kafka import KafkaException, Producer
 
 # ---------------------------------------------------------------------------
 # Configuration — override with environment variables or edit here directly
