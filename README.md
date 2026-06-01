@@ -4,37 +4,7 @@ A real-time and batch data engineering pipeline that ingests, transforms, and se
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                          STREAMING PATH                              │
-│                                                                       │
-│  GBFS REST API  ──►  Python Producer  ──►  Confluent Kafka           │
-│  (Citi Bike)          (Docker / ECS)        (Confluent Cloud)        │
-│                                                    │                 │
-│                                                    ▼                 │
-│                                          Apache Flink SQL            │
-│                                          (Stream Transformations)    │
-│                                                    │                 │
-│                                                    ▼                 │
-│                                          Clickhouse Cloud            │
-│                                          (station_current_status)    │
-└─────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────┐
-│                           BATCH PATH (Planned)                      │
-│                                                                     │
-│  PostgreSQL DB  ──►  Airbyte Cloud  ──►  Snowflake (RAW)            │
-│                       (EL / Full Extract)                           │
-│                                                    │                 │
-│                                                    ▼                 │
-│                                          dbt (Transformations)       │
-│                                          (Staging → Marts)           │
-│                                                                      │
-│                                                                      │
-│                                          Dagster (Orchestration)     │
-│                                          (Schedules & Dependencies)  │
-└─────────────────────────────────────────────────────────────────────┘
-```
+![alt text](architecture_diagram.png)
 
 ## Use Case
 
