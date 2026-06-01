@@ -1,6 +1,12 @@
-from dagster_airbyte import AirbyteCloudWorkspace, build_airbyte_assets_definitions, DagsterAirbyteTranslator, AirbyteConnectionTableProps
 import dagster as dg
-from dagster import AssetSpec, AutomationCondition, AssetKey
+from dagster import AssetKey, AssetSpec, AutomationCondition
+from dagster_airbyte import (
+    AirbyteCloudWorkspace,
+    AirbyteConnectionTableProps,
+    DagsterAirbyteTranslator,
+    build_airbyte_assets_definitions,
+)
+
 
 class CustomDagsterAirbyteTranslator(DagsterAirbyteTranslator):
     def get_asset_spec(self, props: AirbyteConnectionTableProps) -> AssetSpec:

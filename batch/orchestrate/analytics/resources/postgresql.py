@@ -1,6 +1,7 @@
 from dagster import ConfigurableResource
 from sqlalchemy import create_engine
 
+
 class PostgresqlDatabaseResource(ConfigurableResource):
     host_name: str
     database_name: str
