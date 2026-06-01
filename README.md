@@ -16,21 +16,21 @@ A real-time and batch data engineering pipeline that ingests, transforms, and se
 │                                          (Stream Transformations)    │
 │                                                    │                 │
 │                                                    ▼                 │
-│                                          Confluent Cloud Tables      │
+│                                          Clickhouse Cloud            │
 │                                          (station_current_status)    │
 └─────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────┐
-│                           BATCH PATH                                 │
-│                                                                       │
+│                           BATCH PATH (Planned)                      │
+│                                                                     │
 │  PostgreSQL DB  ──►  Airbyte Cloud  ──►  Snowflake (RAW)            │
-│                       (EL / Full Extract)                             │
+│                       (EL / Full Extract)                           │
 │                                                    │                 │
 │                                                    ▼                 │
 │                                          dbt (Transformations)       │
 │                                          (Staging → Marts)           │
-│                                                    │                 │
-│                                                    ▼                 │
+│                                                                      │
+│                                                                      │
 │                                          Dagster (Orchestration)     │
 │                                          (Schedules & Dependencies)  │
 └─────────────────────────────────────────────────────────────────────┘
@@ -39,6 +39,7 @@ A real-time and batch data engineering pipeline that ingests, transforms, and se
 ## Use Case
 
 This pipeline answers questions like:
+
 - Which Citi Bike stations are running low on bikes right now?
 - What are the peak usage hours per station/region?
 - How does bike availability change over 5-minute intervals across Brooklyn?
@@ -47,19 +48,19 @@ This pipeline answers questions like:
 
 ## Tech Stack
 
-| Component | Technology |
-|---|---|
-| Streaming Source | [GBFS](https://gbfs.lyft.com/gbfs/2.3/bkn/en/) (Lyft / Citi Bike) |
-| Message Broker | Confluent Cloud (Kafka) |
-| Stream Producer | Python + `confluent-kafka` |
-| Stream Transformations | Apache Flink SQL (Confluent Cloud) |
-| Batch Integration | Airbyte Cloud |
-| Data Warehouse | Snowflake |
-| Batch Transformations | dbt (dbt-snowflake) |
-| Orchestration | Dagster |
-| Containerisation | Docker |
-| CI | GitHub Actions |
-| Linting | Ruff |
+| Component              | Technology                                                        |
+| ---------------------- | ----------------------------------------------------------------- |
+| Streaming Source       | [GBFS](https://gbfs.lyft.com/gbfs/2.3/bkn/en/) (Lyft / Citi Bike) |
+| Message Broker         | Confluent Cloud (Kafka)                                           |
+| Stream Producer        | Python + `confluent-kafka`                                        |
+| Stream Transformations | Apache Flink SQL (Confluent Cloud)                                |
+| Batch Integration      | Airbyte Cloud                                                     |
+| Data Warehouse         | Snowflake                                                         |
+| Batch Transformations  | dbt (dbt-snowflake)                                               |
+| Orchestration          | Dagster                                                           |
+| Containerisation       | Docker                                                            |
+| CI                     | GitHub Actions                                                    |
+| Linting                | Ruff                                                              |
 
 ## Project Structure
 
@@ -118,10 +119,10 @@ docker run --rm \
 
 **Environment variables (`.env`):**
 
-| Variable | Description |
-|---|---|
-| `STATION_STATUS_URL` | GBFS station-status feed URL |
-| `KAFKA_TOPIC` | Target Kafka topic name |
+| Variable                | Description                     |
+| ----------------------- | ------------------------------- |
+| `STATION_STATUS_URL`    | GBFS station-status feed URL    |
+| `KAFKA_TOPIC`           | Target Kafka topic name         |
 | `POLL_INTERVAL_SECONDS` | Polling frequency (default: 30) |
 
 ### Running the station info seed
@@ -171,29 +172,15 @@ pip install ruff
 ruff check streams/event-producer batch/
 ```
 
-## Data Quality
-
-dbt data tests are defined in `batch/transform/models/example/schema.yml`:
-
-- `unique` — no duplicate primary keys
-- `not_null` — required fields are populated
-- `accepted_values` — status fields contain only valid values
-
-```bash
-cd batch/transform
-dbt test
-```
-
 ## Cloud Services
 
-| Service | Provider | Purpose |
-|---|---|---|
-| Kafka Broker | Confluent Cloud | Message queue for station events |
-| Stream Processing | Confluent Cloud (Flink) | Real-time SQL transformations |
-| Data Warehouse | Snowflake | Storage and batch transformations |
-| Data Integration | Airbyte Cloud | Extract & load from PostgreSQL |
-| Container Registry | AWS ECR | Docker image hosting |
-| Container Runtime | AWS ECS | Running the Kafka producer |
+| Service                 | Provider                | Purpose                           |
+| ----------------------- | ----------------------- | --------------------------------- |
+| Kafka Broker            | Confluent Cloud         | Message queue for station events  |
+| Stream Processing       | Confluent Cloud (Flink) | Real-time SQL transformations     |
+| Real Time Serving Layer | Clickhouse Cloud        | Real-time view of data            |
+| Data Warehouse          | Snowflake               | Storage and batch transformations |
+| Data Integration        | Airbyte Cloud           | Extract & load from PostgreSQL    |
 
 ## Dataset
 
