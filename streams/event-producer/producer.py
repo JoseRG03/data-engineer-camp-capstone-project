@@ -11,6 +11,8 @@ from loguru import logger
 
 load_dotenv()
 
+## File change to trigger github actions pipeline
+
 STATION_STATUS_URL = os.getenv("STATION_STATUS_URL")
 POLL_INTERVAL_SECONDS = int(os.getenv("POLL_INTERVAL_SECONDS", "30"))
 KAFKA_TOPIC = os.getenv("KAFKA_TOPIC")
